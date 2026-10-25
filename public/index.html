@@ -1,4 +1,4 @@
-<!doctype html>
+doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -41,9 +41,19 @@ footer{text-align:center;color:#a8d7a5;font-size:12px;padding:12px}.verse{font-s
 <body>
 <main>
 <header class="top"><h1>🐦 Hungry Birds Tycoon</h1><span id="saveStatus" class="muted">💾 Salvamento automático</span></header>
-<div id="hbOnlineBar"><span id="hbProfileBadge">👤 Conta não conectada</span><button id="hbOpenAccount">👤 Conta / Entrar</button><button id="hbShowOnline">🌐 Modos online</button><span id="hbConnection" class="muted">Desconectado</span></div>
-<section class="panel" id="hbOnlinePanel"><h2>🌐 Multiplayer online — jogadores reais</h2><p class="muted">Encontre outra pessoa conectada. Não há bots: a partida só começa quando outro jogador entrar na fila.</p><div id="hbOnlineModes"><button data-mode="corn-minute">🌽 Produção de milho · 1 minuto</button><button data-mode="harvest-rush">⚡ Colheita relâmpago · 45 s</button><button data-mode="size-duel">🐦 Desafio de crescimento · 1 minuto</button></div><p id="hbOnlineStatus">Entre na sua conta e escolha um modo.</p><p id="hbOnlineScore"></p><div id="hbOnlinePlayers" class="muted"></div><button id="hbLeaveMatch" class="wide" style="display:none">Sair da fila/partida</button></section>
-
+<section class="panel" id="onlineAccountPanel" style="border-color:#d9bf62">
+<h2>🌐 Conta online</h2><p class="muted">Crie uma conta sem e-mail. O nome fica reservado para você no servidor.</p>
+<div id="accountForm">
+<label for="onlineUsername">Nome (3–16 caracteres)</label><input id="onlineUsername" maxlength="16" autocomplete="username" placeholder="SeuNome" style="display:block;width:100%;padding:11px;margin:5px 0 10px;border-radius:8px;border:1px solid #56745c;background:#0f291f;color:white">
+<label for="onlinePassword">Senha (mínimo 8 caracteres)</label><input id="onlinePassword" type="password" maxlength="72" autocomplete="current-password" placeholder="Sua senha" style="display:block;width:100%;padding:11px;margin:5px 0 10px;border-radius:8px;border:1px solid #56745c;background:#0f291f;color:white">
+<label for="onlineAvatar">Foto de perfil</label><select id="onlineAvatar" style="display:block;width:100%;padding:11px;margin:5px 0 10px;border-radius:8px;background:#0f291f;color:white;border:1px solid #56745c"><option>🐦</option><option>🐤</option><option>🦅</option><option>🦜</option><option>🐧</option><option>🦉</option><option>🦫</option><option>🐔</option></select>
+<div class="btns"><button id="onlineRegister" class="primary">Criar conta</button><button id="onlineLogin">Entrar</button></div></div>
+<div id="accountLoggedIn" hidden><p id="accountWelcome"></p><label for="onlineAvatarLogged">Mudar foto de perfil</label><select id="onlineAvatarLogged" style="display:block;width:100%;padding:11px;margin:5px 0 10px;border-radius:8px;background:#0f291f;color:white;border:1px solid #56745c"><option>🐦</option><option>🐤</option><option>🦅</option><option>🦜</option><option>🐧</option><option>🦉</option><option>🦫</option><option>🐔</option></select><div class="btns"><button id="onlineAvatarSave">Salvar foto</button><button id="onlineLogout">Sair da conta</button></div></div>
+<p id="accountMessage" class="muted" role="status">Ainda não conectado.</p>
+</section>
+<section class="panel" id="onlineBattlePanel" style="border-color:#67b9d4"><h2>⚔️ Batalha online de milho</h2><p class="muted">Encontre outra pessoa conectada e toque o botão para produzir milho por 60 segundos. Vence quem produzir mais. Sem bots.</p>
+<div class="stats"><div class="stat"><span>⏱️ Tempo</span><strong id="onlineTime">60 s</strong></div><div class="stat"><span>🌽 Seu milho</span><strong id="onlineMyCorn">0</strong></div><div class="stat"><span>🆚 Adversário</span><strong id="onlineOpponent">—</strong></div><div class="stat"><span>🌽 Milho adversário</span><strong id="onlineOpponentCorn">0</strong></div></div>
+<div class="btns" style="margin-top:10px"><button id="onlineQueue" class="primary">🔎 Encontrar jogador</button><button id="onlineLeave" disabled>Cancelar busca</button><button id="onlineTap" class="primary" disabled>🌽 PRODUZIR MILHO!</button></div><p id="onlineBattleMessage" class="muted" role="status">Entre na conta para jogar online.</p></section>
 <section class="panel"><h2>♻️ Rebirth</h2><p class="muted">Reinicie seu império para ganhar um multiplicador permanente de produtividade. Cada rebirth dobra o multiplicador: 2×, 4×, 8×… sem limite. Os minigames são desbloqueados após o primeiro rebirth.</p><div class="item"><div><b id="rebirthInfo">Rebirths: 0 · Produtividade: 1×</b><small id="rebirthHint">Faça seu primeiro rebirth para liberar os minigames.</small></div><button id="rebirthButton">♻️ Fazer rebirth</button></div></section>
 <section class="stats">
 <div class="stat"><span>🪙 Moedas</span><strong id="coins">0</strong></div>
@@ -381,30 +391,173 @@ setInterval(()=>{const r=rate();if(r>0n&&s.reserves[s.planet]>0n){const n=r<s.re
 setInterval(save,5000);
 })();
 </script>
-
-<style>
-#hbOnlineBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#0f291f;border:1px solid #42664a;border-radius:12px;padding:10px;margin:8px 0 12px}#hbOnlineBar button{padding:8px 10px}#hbOnlinePanel{display:none}#hbAccountModal{position:fixed;inset:0;background:#06110eeF;z-index:9999;display:flex;align-items:center;justify-content:center;padding:14px}#hbAccountCard{width:min(480px,100%);background:#1a3428;border:1px solid #6d9568;border-radius:16px;padding:18px;box-shadow:0 15px 50px #0009}#hbAccountCard input{width:100%;padding:11px;border-radius:8px;border:1px solid #58795b;background:#0c2017;color:white;font:inherit;margin:5px 0 10px}#hbAvatars{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:8px 0}#hbAvatars button{font-size:25px;padding:7px 2px}#hbAvatars button.selected{outline:3px solid #f4d875;background:#496b3e}#hbAccountError{color:#ffd28d;min-height:22px;font-size:13px}#hbOnlineModes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}#hbOnlineStatus{font-size:13px;color:#d2e6d0}#hbOnlineScore{font-size:18px;color:#f4d875;font-weight:800}
-</style>
-<div id="hbAccountModal"><div id="hbAccountCard"><h2>🐦 Conta Hungry Birds</h2><p class="muted">Crie uma conta sem e-mail. O nome é exclusivo. Use uma senha para proteger sua conta.</p><label for="hbUsername">Nome de usuário</label><input id="hbUsername" maxlength="18" autocomplete="username" placeholder="Escolha um nome (3–18 caracteres)"><label for="hbPassword">Senha (mínimo 6 caracteres)</label><input id="hbPassword" type="password" autocomplete="current-password" placeholder="Crie ou digite sua senha"><b>Escolha sua foto de perfil</b><div id="hbAvatars"></div><div id="hbAccountError"></div><div class="btns"><button id="hbRegister" class="primary">Criar conta</button><button id="hbLogin">Entrar</button></div><button id="hbOffline" class="wide">Continuar jogando offline</button><p class="muted">Sem e-mail de recuperação: guarde sua senha. Não use uma senha que você usa em outros serviços.</p></div></div>
 <script>
 (()=>{
-const avatars=['🐦','🐤','🦅','🦜','🦉','🐧','🦆','🦩','🦚','🐔','🦤','♟️🦫🧊'];
-let avatar=avatars[0],token=localStorage.getItem('hbOnlineToken')||'',profile=null,socket=null,activeMatch=false,lastCorn=null,lastSize=null,currentMode='corn-minute';
-const $=id=>document.getElementById(id);const api=async(path,data)=>{const r=await fetch('/api/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const x=await r.json();if(!r.ok)throw new Error(x.error||'Erro na conexão');return x;};
-avatars.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.textContent=a;b.className=i===0?'selected':'';b.onclick=()=>{avatar=a;document.querySelectorAll('#hbAvatars button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');};$('hbAvatars').appendChild(b);});
-function setProfile(p){profile=p;$('hbProfileBadge').textContent=p.avatar+' '+p.username;$('hbAccountModal').style.display='none';$('hbConnection').textContent='Conectando…';connectSocket();}
-function connectSocket(){if(socket)socket.close();socket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws?token='+encodeURIComponent(token));socket.onopen=()=>$('hbConnection').textContent='🟢 Online';socket.onclose=()=>{$('hbConnection').textContent='🔴 Desconectado';};socket.onerror=()=>{$('hbConnection').textContent='Falha na conexão';};socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='queued'){$('hbOnlineStatus').textContent='⏳ Procurando um jogador real…';$('hbLeaveMatch').style.display='block';activeMatch=true;}if(m.type==='matched'){$('hbOnlineStatus').textContent='🏁 Partida encontrada! '+m.duration+' segundos.';$('hbOnlinePlayers').textContent='Você: '+profile.username+' · Adversário: '+m.opponent.username;$('hbOnlineScore').textContent='Placar: 0 × 0';$('hbLeaveMatch').style.display='block';activeMatch=true;lastCorn=parseNum($('corn').textContent);lastSize=parseNum($('birdLabel').textContent.match(/Tamanho ([\d.,]+)/)?.[1]||'1');}if(m.type==='tick'){$('hbOnlineScore').textContent='🌽 '+profile.username+': '+m.youScore.toLocaleString('pt-BR')+' × '+m.opponentScore.toLocaleString('pt-BR')+' '+m.opponent.username+' · '+m.remaining+' s';}if(m.type==='result'){$('hbOnlineStatus').textContent=m.winner==='draw'?'🤝 Empate!':m.winner===profile.username?'🏆 Você venceu!':'😅 '+m.winner+' venceu desta vez!';$('hbOnlineScore').textContent='Placar final: '+m.youScore.toLocaleString('pt-BR')+' × '+m.opponentScore.toLocaleString('pt-BR');$('hbLeaveMatch').style.display='none';activeMatch=false;}if(m.type==='error'){$('hbOnlineStatus').textContent='⚠️ '+m.message;}};}
-function parseNum(t){return Number(String(t||'0').replace(/[^0-9]/g,''))||0;}
-async function auth(mode){$('hbAccountError').textContent='';try{const data={username:$('hbUsername').value.trim(),password:$('hbPassword').value,avatar};const x=await api(mode,data);token=x.token;localStorage.setItem('hbOnlineToken',token);setProfile(x.player);}catch(e){$('hbAccountError').textContent=e.message;}}
-$('hbRegister').onclick=()=>auth('register');$('hbLogin').onclick=()=>auth('login');$('hbOffline').onclick=()=>{$('hbAccountModal').style.display='none';$('hbProfileBadge').textContent='👤 Jogando offline';};$('hbOpenAccount').onclick=()=>{$('hbAccountModal').style.display='flex';};$('hbShowOnline').onclick=()=>{$('hbOnlinePanel').style.display=$('hbOnlinePanel').style.display==='block'?'none':'block';$('hbOnlinePanel').scrollIntoView({behavior:'smooth',block:'nearest'});};
-document.querySelectorAll('#hbOnlineModes button').forEach(b=>b.onclick=()=>{if(!profile){$('hbAccountModal').style.display='flex';return;}if(socket?.readyState===1){currentMode=b.dataset.mode;$('hbOnlineStatus').textContent='Entrando na fila…';socket.send(JSON.stringify({type:'queue',mode:currentMode}));}});
-$('hbLeaveMatch').onclick=()=>{if(socket?.readyState===1)socket.send(JSON.stringify({type:'leave'}));activeMatch=false;$('hbLeaveMatch').style.display='none';$('hbOnlineStatus').textContent='Você saiu da fila/partida.';};
-// Envia somente aumentos observados durante partidas; o servidor controla fila, adversário e relógio.
-setInterval(()=>{if(!activeMatch||!socket||socket.readyState!==1)return;const corn=parseNum($('corn').textContent);const size=parseNum($('birdLabel').textContent.match(/Tamanho ([\d.,]+)/)?.[1]||'1');const delta=currentMode==='size-duel'&&lastSize!==null?Math.max(0,size-lastSize):Math.max(0,corn-(lastCorn??corn));if(delta>0)socket.send(JSON.stringify({type:'score',amount:Math.min(delta,1000000)}));lastCorn=corn;lastSize=size;},300);
-async function restore(){if(!token)return;try{const r=await fetch('/api/me',{headers:{Authorization:'Bearer '+token}});if(!r.ok)throw Error();const x=await r.json();setProfile(x.profile);}catch(e){localStorage.removeItem('hbOnlineToken');token='';}}
+'use strict';
+const $=id=>document.getElementById(id);
+const TOKEN='hbOnlineTokenV1';
+let token=localStorage.getItem(TOKEN)||'';
+let socket=null, inQueue=false, inMatch=false, countdown=null, username='';
+const say=(id,msg)=>{const el=$(id);if(el)el.textContent=msg;};
+function setAccount(player){
+  username=player.username;
+  $('accountForm').hidden=true;
+  $('accountLoggedIn').hidden=false;
+  $('accountWelcome').textContent=`${player.avatar} Conectado como ${player.username}`;
+  $('onlineAvatarLogged').value=player.avatar;
+  say('accountMessage','Conta conectada ao servidor.');
+  $('onlineQueue').disabled=false;
+}
+function resetMatchUI(){
+  inQueue=false; inMatch=false;
+  clearInterval(countdown); countdown=null;
+  $('onlineTap').disabled=true;
+  $('onlineLeave').disabled=true;
+  $('onlineQueue').disabled=!token;
+}
+function disconnect(){
+  if(socket){socket.onclose=null;socket.close();socket=null;}
+  resetMatchUI();
+}
+function showLoggedOut(){
+  $('accountForm').hidden=false;
+  $('accountLoggedIn').hidden=true;
+  say('accountMessage','Entre ou crie uma conta para jogar online.');
+  disconnect();
+}
+function handleMessage(d){
+  if(d.type==='connected'){
+    setAccount(d.player);
+    return;
+  }
+  if(d.type==='queue_wait'){
+    inQueue=true; inMatch=false;
+    $('onlineLeave').disabled=false;
+    $('onlineQueue').disabled=true;
+    $('onlineTap').disabled=true;
+    say('onlineBattleMessage',d.message||'Procurando outro jogador real...');
+    return;
+  }
+  if(d.type==='queue_left'){
+    inQueue=false;
+    $('onlineLeave').disabled=true;
+    $('onlineQueue').disabled=false;
+    say('onlineBattleMessage','Busca cancelada.');
+    return;
+  }
+  if(d.type==='match_start'){
+    inQueue=false; inMatch=true;
+    $('onlineLeave').disabled=true;
+    $('onlineQueue').disabled=true;
+    $('onlineTap').disabled=false;
+    $('onlineMyCorn').textContent='0';
+    $('onlineOpponentCorn').textContent='0';
+    const players=Array.isArray(d.players)?d.players:[];
+    const opponent=players.find(p=>p.username!==username);
+    $('onlineOpponent').textContent=opponent?opponent.username:'Jogador';
+    const end=Date.now()+(Number(d.duration)||60000);
+    clearInterval(countdown);
+    const updateTime=()=>{
+      const n=Math.max(0,Math.ceil((end-Date.now())/1000));
+      $('onlineTime').textContent=n+' s';
+      if(n===0){clearInterval(countdown);countdown=null;}
+    };
+    updateTime(); countdown=setInterval(updateTime,200);
+    say('onlineBattleMessage','Partida iniciada! Toque em PRODUZIR MILHO para marcar pontos.');
+    return;
+  }
+  if(d.type==='score'){
+    $('onlineMyCorn').textContent=String(d.corn||0);
+    return;
+  }
+  if(d.type==='opponent_score'){
+    $('onlineOpponentCorn').textContent=String(d.corn||0);
+    if(d.username)$('onlineOpponent').textContent=d.username;
+    return;
+  }
+  if(d.type==='match_end'){
+    inMatch=false; inQueue=false;
+    $('onlineTap').disabled=true;
+    $('onlineQueue').disabled=false;
+    $('onlineLeave').disabled=true;
+    clearInterval(countdown); countdown=null;
+    $('onlineTime').textContent='0 s';
+    const scores=Array.isArray(d.scores)?d.scores:[];
+    const mine=scores.find(p=>p.username===username);
+    const other=scores.find(p=>p.username!==username);
+    if(mine)$('onlineMyCorn').textContent=String(mine.corn||0);
+    if(other)$('onlineOpponentCorn').textContent=String(other.corn||0);
+    const myScore=$('onlineMyCorn').textContent;
+    const otherScore=$('onlineOpponentCorn').textContent;
+    let message=d.draw?'🤝 Empate!':d.winner===username?'🏆 Você venceu!':`Partida encerrada! Vencedor: ${d.winner||'—'}.`;
+    if(d.reason==='disconnect')message='O outro jogador desconectou. A partida foi encerrada. '+message;
+    say('onlineBattleMessage',message+' Placar: '+myScore+' × '+otherScore+'.');
+    return;
+  }
+  if(d.type==='error')say('onlineBattleMessage',d.message||'Ocorreu um erro.');
+}
+function connect(){
+  if(!token)return;
+  if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
+  const proto=location.protocol==='https:'?'wss:':'ws:';
+  socket=new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(token)}`);
+  socket.onopen=()=>say('onlineBattleMessage','Conectado ao servidor multiplayer.');
+  socket.onmessage=e=>{let d;try{d=JSON.parse(e.data);}catch{return;}handleMessage(d);};
+  socket.onclose=()=>{
+    resetMatchUI();
+    if(token)say('onlineBattleMessage','Conexão fechada. Confira se o servidor está online e entre novamente.');
+    socket=null;
+  };
+  socket.onerror=()=>say('onlineBattleMessage','Erro de conexão com o servidor.');
+}
+async function auth(mode){
+  const usernameInput=$('onlineUsername').value.trim();
+  const password=$('onlinePassword').value;
+  const body={username:usernameInput,password,avatar:$('onlineAvatar').value};
+  try{
+    const r=await fetch('/api/'+mode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Não foi possível entrar.');
+    token=d.token;localStorage.setItem(TOKEN,token);
+    setAccount(d.player);connect();
+  }catch(e){say('accountMessage',e.message);}
+}
+$('onlineRegister').addEventListener('click',()=>auth('register'));
+$('onlineLogin').addEventListener('click',()=>auth('login'));
+$('onlineLogout').addEventListener('click',()=>{
+  localStorage.removeItem(TOKEN);token='';username='';showLoggedOut();
+  say('onlineBattleMessage','Você saiu da conta.');
+});
+$('onlineAvatarSave').addEventListener('click',async()=>{
+  try{
+    const r=await fetch('/api/avatar',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({avatar:$('onlineAvatarLogged').value})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Não foi possível atualizar o avatar.');
+    setAccount(d.player);say('accountMessage','Foto de perfil atualizada!');
+  }catch(e){say('accountMessage',e.message);}
+});
+$('onlineQueue').addEventListener('click',()=>{
+  if(!token){say('onlineBattleMessage','Entre na conta primeiro.');return;}
+  if(inQueue||inMatch)return;
+  if(!socket||socket.readyState!==WebSocket.OPEN){connect();say('onlineBattleMessage','Conectando ao servidor. Toque em Encontrar jogador novamente quando estiver conectado.');return;}
+  socket.send(JSON.stringify({type:'queue_join'}));
+});
+$('onlineLeave').addEventListener('click',()=>{
+  if(socket&&socket.readyState===WebSocket.OPEN&&inQueue){socket.send(JSON.stringify({type:'queue_leave'}));}
+  else if(!inMatch){inQueue=false;$('onlineLeave').disabled=true;$('onlineQueue').disabled=false;say('onlineBattleMessage','Busca cancelada.');}
+});
+$('onlineTap').addEventListener('click',()=>{
+  if(socket&&socket.readyState===WebSocket.OPEN&&inMatch)socket.send(JSON.stringify({type:'tap'}));
+});
+async function restore(){
+  if(!token){showLoggedOut();return;}
+  try{
+    const r=await fetch('/api/me',{headers:{'Authorization':'Bearer '+token}});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Sessão expirada.');
+    setAccount(d.player);connect();
+  }catch(e){localStorage.removeItem(TOKEN);token='';showLoggedOut();}
+}
 restore();
 })();
 </script>
-
 </body>
 </html>
