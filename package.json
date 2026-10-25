@@ -1,0 +1,16 @@
+{
+  "name": "hungry-birds-online",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hungry Birds Tycoon com contas online e partidas multiplayer reais",
+  "main": "server.js",
+  "scripts": {"start": "node server.js"},
+  "engines": {"node": ">=20"},
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#10251d">
+<title>Hungry Birds Tycoon</title>
+<style>
+:root{color-scheme:dark;--bg:#10251d;--panel:#1a3428;--line:#31523e;--gold:#f4d875;--green:#2b5038}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#173e2b,#0c1c17);font-family:system-ui,-apple-system,sans-serif;color:#f5f7e9}
+main{max-width:1000px;margin:auto;padding:12px}.top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:clamp(21px,4vw,32px);margin:0;color:var(--gold)}h2{font-size:18px;color:var(--gold);margin:0 0 10px}p{margin:5px 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;margin:10px 0;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{background:#0f291f;border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}.stat span{display:block;color:#bcd0bf;font-size:12px}.stat strong{font-size:clamp(17px,3vw,23px);color:var(--gold);overflow-wrap:anywhere}
+.hero{background:linear-gradient(#7bc6ed 0%,#c6eaff 64%,#659849 64%,#315f2e 100%);color:#14291e;text-align:center;position:relative;overflow:hidden;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:15px}
+#bird{font-size:80px;line-height:1.15;transform-origin:bottom center;filter:drop-shadow(0 6px 4px #173b2a70);transition:font-size .4s ease;z-index:1}
+#bird.eating{animation:growth .85s cubic-bezier(.2,1.7,.4,1)}@keyframes growth{0%{transform:scale(1)}30%{transform:scale(1.65);filter:drop-shadow(0 0 18px gold)}60%{transform:scale(.88)}100%{transform:scale(1)}}
+.hero.theme-0{background:linear-gradient(#7bc6ed 0%,#c6eaff 64%,#659849 64%,#315f2e 100%)}
+.hero.theme-1{background:linear-gradient(#171d3e 0%,#777bb5 62%,#b5b8c8 62%,#696c7c 100%)}
+.hero.theme-2{background:linear-gradient(#a9d8f2 0%,#f2b08a 60%,#bc633d 60%,#713820 100%)}
+.hero.theme-3{background:linear-gradient(#140d24 0%,#e97839 58%,#e5a33c 59%,#65321e 100%)}
+.hero.theme-4{background:linear-gradient(#07152e 0%,#4a2d76 60%,#202d61 60%,#101b3a 100%)}
+.hero.theme-0 #bird,.hero.theme-1 #bird,.hero.theme-2 #bird,.hero.theme-3 #bird,.hero.theme-4 #bird{filter:drop-shadow(0 6px 4px #0008)}
+#birdLabel{font-weight:800;font-size:18px;z-index:1}#birdSub{font-size:13px;z-index:1}
+.cloud{position:absolute;font-size:34px;opacity:.5;top:15px;left:8%}.cloud.c2{left:auto;right:8%;top:48px}
+.btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}button,select{font:inherit;border:1px solid #4b7452;border-radius:9px;padding:10px;background:var(--green);color:white;cursor:pointer}button.primary{background:#e2bc4f;color:#182619;font-weight:800;border-color:#f5d87d}button:disabled{opacity:.4;cursor:not-allowed}.wide{width:100%;margin-top:8px}.muted{font-size:13px;color:#bdcfbd}.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.item small{display:block;color:#bdcfbd;margin-top:3px}.item button{max-width:140px;flex-shrink:0}.worlds{display:flex;flex-wrap:wrap;gap:7px}.worlds button{flex:1;min-width:90px}
+.scale{background:#0f291f;border-radius:10px;padding:12px}.bars{height:145px;display:flex;align-items:end;justify-content:space-around;border-bottom:2px solid #79a87c;margin:12px 0}.barWrap{width:45%;height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:4px}.birdBar{font-size:24px;min-height:5px;background:#e7c74e;border-radius:8px 8px 0 0;width:65px;display:flex;align-items:start;justify-content:center;overflow:hidden;transition:height .4s}.burj{width:30px;height:120px;background:linear-gradient(90deg,#6698b5,#e4f7ff,#5686a8);clip-path:polygon(48% 0,53% 0,58% 25%,72% 48%,84% 100%,16% 100%,28% 48%,42% 25%)}.label{text-align:center;font-size:12px;color:#d5e9db}
+.particle{position:absolute;bottom:55px;font-size:22px;pointer-events:none;animation:fly .85s ease-out forwards;z-index:3}@keyframes fly{to{transform:translateY(-110px) rotate(220deg);opacity:0}}
+footer{text-align:center;color:#a8d7a5;font-size:12px;padding:12px}.verse{font-style:italic;line-height:1.5}.skin-preview{font-size:24px}
+
+.building-view{margin-top:12px;min-height:180px;border:1px solid #42664a;border-radius:12px;overflow:hidden;background:linear-gradient(#8bd2f2 0 55%,#4a7543 55%);padding:12px;color:#14291e}
+.mall-outside{margin:auto;max-width:330px;height:175px;display:flex;align-items:end;justify-content:center;position:relative}
+.mall-facade{width:78%;height:145px;background:linear-gradient(90deg,#b8cbd1,#f5f0d8 35%,#9eb8c5 36%,#e8f0ee 70%,#8199a4);border:3px solid #506c75;box-shadow:0 8px 0 #314b34;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px}
+.mall-window{background:#62b5d9;border:2px solid #e8f5fa;min-height:24px}.mall-roof{position:absolute;top:0;width:84%;height:24px;background:#e6bd45;border:3px solid #8d6e2d;text-align:center;font-weight:900;font-size:12px;padding:2px}
+.mall-inside{background:#e6e3d9;color:#2b332b;border-radius:8px;padding:10px;min-height:170px}
+.mall-floor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.shop{background:#fff;border:2px solid #d1b96b;border-radius:6px;text-align:center;padding:12px 3px;font-size:12px;font-weight:700}.shop small{display:block;font-weight:400}.mall-escalator{background:#5e6e78;color:white;padding:8px;text-align:center;border-radius:6px;margin-top:8px}
+.race-game{margin-top:10px;background:#0b1713;border:1px solid #42664a;border-radius:12px;padding:8px}.race-hud{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;margin-bottom:6px;color:#f5d875}#raceCanvas{display:block;width:100%;max-width:360px;height:auto;margin:auto;background:#343b40;border-radius:8px;border:2px solid #73817b}.race-controls{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:5px;margin-top:8px}.race-controls button{padding:10px 4px;font-size:13px}.race-controls #startRace{font-weight:800}
+@media(min-width:720px){.layout{display:grid;grid-template-columns:1fr 1fr;gap:10px}.layout .panel{margin:0 0 10px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main>
+<header class="top"><h1>🐦 Hungry Birds Tycoon</h1><span id="saveStatus" class="muted">💾 Salvamento automático</span></header>
+<div id="hbOnlineBar"><span id="hbProfileBadge">👤 Conta não conectada</span><button id="hbOpenAccount">👤 Conta / Entrar</button><button id="hbShowOnline">🌐 Modos online</button><span id="hbConnection" class="muted">Desconectado</span></div>
+<section class="panel" id="hbOnlinePanel"><h2>🌐 Multiplayer online — jogadores reais</h2><p class="muted">Encontre outra pessoa conectada. Não há bots: a partida só começa quando outro jogador entrar na fila.</p><div id="hbOnlineModes"><button data-mode="corn-minute">🌽 Produção de milho · 1 minuto</button><button data-mode="harvest-rush">⚡ Colheita relâmpago · 45 s</button><button data-mode="size-duel">🐦 Desafio de crescimento · 1 minuto</button></div><p id="hbOnlineStatus">Entre na sua conta e escolha um modo.</p><p id="hbOnlineScore"></p><div id="hbOnlinePlayers" class="muted"></div><button id="hbLeaveMatch" class="wide" style="display:none">Sair da fila/partida</button></section>
+
+<section class="panel"><h2>♻️ Rebirth</h2><p class="muted">Reinicie seu império para ganhar um multiplicador permanente de produtividade. Cada rebirth dobra o multiplicador: 2×, 4×, 8×… sem limite. Os minigames são desbloqueados após o primeiro rebirth.</p><div class="item"><div><b id="rebirthInfo">Rebirths: 0 · Produtividade: 1×</b><small id="rebirthHint">Faça seu primeiro rebirth para liberar os minigames.</small></div><button id="rebirthButton">♻️ Fazer rebirth</button></div></section>
+<section class="stats">
+<div class="stat"><span>🪙 Moedas</span><strong id="coins">0</strong></div>
+<div class="stat"><span>🌽 Seu milho</span><strong id="corn">0</strong></div>
+<div class="stat"><span>⚙️ Produção</span><strong id="rate">0/s</strong></div>
+<div class="stat"><span>🌍 Planeta atual</span><strong id="planetShort">Terra</strong></div>
+</section>
+<section class="panel hero theme-0" id="birdStage"><div class="cloud">☁️</div><div class="cloud c2">☁️</div>
+<div id="bird">🐦</div><div id="birdLabel">Pardal · Tamanho 1</div><div id="birdSub">Sem limite de tamanho ♾️</div>
+</section>
+<section class="panel">
+<h2>🌽 Fazenda e alimentação</h2>
+<p class="muted" id="planetInfo">Terra — reserva de milho</p>
+<div class="btns"><button id="plant" class="primary">🌱 Plantar 10 milhos</button><button id="sell">🪙 Vender milho</button></div>
+<button id="feed" class="primary wide">🌽 Alimentar ave</button>
+<p class="muted" id="feedInfo">Próxima refeição: 1 milho. A ave dobra de tamanho!</p>
+<p class="muted" id="sellInfo">Venda inicial: até 10 milhos por clique.</p>
+</section>
+<section class="panel scale">
+<h2>📏 Comparação de tamanho</h2>
+<p class="muted" id="comparisonTitle">Sua ave comparada com uma cadeira</p>
+<div class="bars"><div class="barWrap"><div id="birdBar" class="birdBar">🐦</div><div class="label">Sua ave<br><strong id="birdMeters">1 m</strong></div></div><div class="barWrap"><div id="objectBar" class="birdBar" style="background:#87b9d9">🪑</div><div class="label"><strong id="objectName">Cadeira</strong><br><strong id="objectMeters">0,9 m</strong></div></div></div>
+<p class="muted" id="scaleMessage">A comparação visual se adapta ao tamanho da sua ave.</p>
+</section>
+<div class="layout">
+<section class="panel"><h2>🛠️ Melhorias de produção</h2><div id="upgrades"></div></section>
+<section class="panel"><h2>📦 Melhorias de venda</h2><div id="salesUpgrades"></div></section>
+<section class="panel"><h2>🪐 Viagem entre planetas</h2><p class="muted">Esgote a reserva de um planeta para desbloquear o próximo.</p><div id="worlds" class="worlds"></div></section>
+<section class="panel"><h2>🐤 Loja de espécies</h2><p class="muted">As espécies mudam a aparência da ave.</p><div id="species"></div></section>
+<section class="panel"><h2>🏬 Império do milho</h2><p class="muted">Expanda de uma barraca até supermercados, shoppings e uma loja de departamento só de milho. Cada expansão aumenta o valor das vendas!</p><div id="empire"></div><div id="buildingView" class="building-view"></div><div class="btns"><button id="viewOutside">🏙️ Ver por fora</button><button id="enterBuilding">🚪 Entrar no prédio</button></div><p id="buildingInfo" class="muted">Compre um supermercado ou shopping para explorar o prédio.</p></section>
+<section class="panel"><h2>🏁 Minigames dos pássaros</h2><p class="muted">Agora é você que controla! Na corrida em circuito, ultrapasse rivais visíveis trocando entre as faixas interna, central e externa. Complete 3 voltas para vencer.</p><div id="minigames"></div><div id="raceUnlockMessage" class="muted">Faça um rebirth para desbloquear os minigames.</div><div id="raceGarage" class="race-game"><h3>🏎️ Garagem e circuitos</h3><div id="trackChoices" class="btns"></div><div id="carChoices" class="btns"></div><p id="garageInfo" class="muted"></p></div><div id="raceGame" class="race-game"><div class="race-hud"><span id="raceStatus">Pronto para correr?</span><span id="raceDistance">Distância: 0/100</span></div><canvas id="raceCanvas" width="360" height="420" aria-label="Corrida de circuito vista de cima com carro do jogador e três carros rivais visíveis"></canvas><div class="race-controls"><button id="leftControl">⬅️ Esquerda</button><button id="startRace" class="primary">🏎️ Começar corrida</button><button id="rightControl">Direita ➡️</button></div><p class="muted">Circuito oval visto de cima, com 3 carros rivais coloridos. Use ⬅️ e ➡️ para trocar de faixa, evitar colisões e disputar a vitória.</p></div><p id="gameResult" class="muted" aria-live="polite">Jogue para ganhar milho e desbloquear skins.</p><div id="skins"></div></section>
+<section class="panel"><h2>📖 Versículo do dia</h2><p id="verse" class="verse">“Tudo posso naquele que me fortalece.”</p><p id="verseRef" class="muted">Filipenses 4:13</p><button id="newVerse" class="wide">✨ Outro versículo</button></section>
+</div>
+<button id="reset" class="wide" style="background:#4b2926;border-color:#8c5146">Reiniciar jogo</button>
+<footer>Seu progresso é salvo neste navegador. Limpar os dados do navegador pode apagar o salvamento.</footer>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),KEY='hungryBirdsTycoonSaveV1';
+const worlds=[{name:'Terra',emoji:'🌍',stock:100000},{name:'Lua',emoji:'🌙',stock:500000},{name:'Marte',emoji:'🔴',stock:2000000},{name:'Sol',emoji:'☀️',stock:10000000},{name:'Galáxia',emoji:'🌌',stock:100000000}];
+const production=[{name:'Plantação automática',base:500,rate:5,emoji:'🌱'},{name:'Trator',base:5000,rate:50,emoji:'🚜'},{name:'Fábrica',base:50000,rate:500,emoji:'🏭'},{name:'Caminhão',base:250000,rate:2000,emoji:'🚚'},{name:'Super caminhão',base:1000000,rate:10000,emoji:'🚛'}];
+const saleLevels=[{cost:250,qty:100},{cost:2500,qty:1000},{cost:25000,qty:10000},{cost:250000,qty:100000},{cost:2500000,qty:1000000}];
+const birds=[{name:'Pardal',emoji:'🐦',cost:0},{name:'Pintinho',emoji:'🐤',cost:500},{name:'Galinha',emoji:'🐔',cost:2500},{name:'Águia',emoji:'🦅',cost:10000},{name:'Papagaio',emoji:'🦜',cost:50000},{name:'Fênix',emoji:'🔥',cost:250000},{name:'Ave cósmica',emoji:'🪶',cost:1000000},{name:'Capivara glacial',emoji:'♟️🦫🧊',cost:6742}];
+const empireStores=[
+ {name:'Barraca de milho',emoji:'🛒',cost:0,mult:1,desc:'Sua primeira loja. Venda padrão.'},
+ {name:'Mercadinho de milho',emoji:'🏪',cost:1000,mult:2,desc:'Vendas valem 2× moedas.'},
+ {name:'Supermercado de milho',emoji:'🏬',cost:10000,mult:4,desc:'Vendas valem 4× moedas.'},
+ {name:'Shopping do milho',emoji:'🏢',cost:100000,mult:8,desc:'Vendas valem 8× moedas.'},
+ {name:'Loja de departamento do milho',emoji:'🏙️',cost:1000000,mult:16,desc:'Vendas valem 16× moedas.'}
+];
+const skins=[
+ {name:'Clássica',emoji:'✨',color:'#ffffff'},
+ {name:'Dourada',emoji:'🌟',color:'#ffd84d'},
+ {name:'Gelada',emoji:'❄️',color:'#8eeaff'},
+ {name:'Fogo',emoji:'🔥',color:'#ff8b48'},
+ {name:'Galáxia',emoji:'🌌',color:'#d4a0ff'},
+ {name:'Arco-íris',emoji:'🌈',color:'#ff8ad8'}
+];
+const verses=[
+['“Tudo posso naquele que me fortalece.”','Filipenses 4:13'],['“O Senhor é o meu pastor; nada me faltará.”','Salmos 23:1'],['“Alegrai-vos sempre no Senhor.”','Filipenses 4:4'],['“O amor é paciente, o amor é bondoso.”','1 Coríntios 13:4'],['“Confia no Senhor de todo o teu coração.”','Provérbios 3:5'],
+['“Sê forte e corajoso.”','Josué 1:9'],['“O Senhor pelejará por vós.”','Êxodo 14:14'],['“Entrega o teu caminho ao Senhor.”','Salmos 37:5'],['“Aquietai-vos e sabei que eu sou Deus.”','Salmos 46:10'],['“A tua palavra é lâmpada para os meus pés.”','Salmos 119:105'],
+['“O choro pode durar uma noite, mas a alegria vem pela manhã.”','Salmos 30:5'],['“Espera no Senhor; anima-te.”','Salmos 27:14'],['“Deus é o nosso refúgio e fortaleza.”','Salmos 46:1'],['“Lança o teu cuidado sobre o Senhor.”','Salmos 55:22'],['“O Senhor é a minha força e o meu escudo.”','Salmos 28:7'],
+['“O temor do Senhor é o princípio da sabedoria.”','Provérbios 9:10'],['“A resposta branda desvia o furor.”','Provérbios 15:1'],['“Em todo o tempo ama o amigo.”','Provérbios 17:17'],['“A soberba precede a ruína.”','Provérbios 16:18'],['“Confia no Senhor de todo o teu coração.”','Provérbios 3:5'],
+['“Tudo tem o seu tempo determinado.”','Eclesiastes 3:1'],['“Melhor é serem dois do que um.”','Eclesiastes 4:9'],['“Lembra-te do teu Criador.”','Eclesiastes 12:1'],['“Os que esperam no Senhor renovarão as forças.”','Isaías 40:31'],['“Não temas, porque eu sou contigo.”','Isaías 41:10'],
+['“A minha graça te basta.”','2 Coríntios 12:9'],['“Andamos por fé, e não por vista.”','2 Coríntios 5:7'],['“Deus ama ao que dá com alegria.”','2 Coríntios 9:7'],['“O fruto do Espírito é amor, alegria e paz.”','Gálatas 5:22'],['“Não nos cansemos de fazer o bem.”','Gálatas 6:9'],
+['“Revesti-vos de toda a armadura de Deus.”','Efésios 6:11'],['“Andai em amor.”','Efésios 5:2'],['“Sede uns para com os outros benignos.”','Efésios 4:32'],['“Tudo quanto fizerdes, fazei-o de coração.”','Colossenses 3:23'],['“A paz de Deus guardará os vossos corações.”','Filipenses 4:7'],
+['“Em tudo dai graças.”','1 Tessalonicenses 5:18'],['“O justo viverá da fé.”','Romanos 1:17'],['“Vence o mal com o bem.”','Romanos 12:21'],['“Se Deus é por nós, quem será contra nós?”','Romanos 8:31'],['“A esperança não traz confusão.”','Romanos 5:5'],
+['“Pedi, e dar-se-vos-á.”','Mateus 7:7'],['“Bem-aventurados os misericordiosos.”','Mateus 5:7'],['“Buscai primeiro o reino de Deus.”','Mateus 6:33'],['“Amarás o teu próximo como a ti mesmo.”','Mateus 22:39'],['“Vinde a mim, todos os que estais cansados.”','Mateus 11:28'],
+['“Ama o Senhor teu Deus de todo o teu coração.”','Mateus 22:37'],['“Não se turbe o vosso coração.”','João 14:1'],['“Eu sou o caminho, e a verdade, e a vida.”','João 14:6'],['“Amai-vos uns aos outros.”','João 13:34'],['“No mundo tereis aflições, mas tende bom ânimo.”','João 16:33'],
+['“Jesus chorou.”','João 11:35'],['“Pai, perdoa-lhes.”','Lucas 23:34'],['“Porque para Deus nada é impossível.”','Lucas 1:37'],['“Sede misericordiosos.”','Lucas 6:36'],['“A fé sem obras é morta.”','Tiago 2:26'],
+['“Se algum de vós tem falta de sabedoria, peça-a a Deus.”','Tiago 1:5'],['“Toda boa dádiva vem do alto.”','Tiago 1:17'],['“Lançando sobre ele toda a vossa ansiedade.”','1 Pedro 5:7'],['“O Senhor é longânimo e grande em misericórdia.”','Números 14:18'],['“Escolhei hoje a quem sirvais.”','Josué 24:15']
+];
+function dailyVerseIndex(){const now=new Date();const start=new Date(now.getFullYear(),0,0);const day=Math.floor((now-start)/86400000);return (day+Number(s.verse||0))%verses.length;}
+const initial=()=>({coins:0n,corn:0n,size:1n,rateLevels:[0,0,0,0,0],saleLevel:0,salePrice:2n,planet:0,unlocked:1,reserves:worlds.map(w=>BigInt(w.stock)),owned:[0],bird:0,verse:0,empireLevel:0,skinsOwned:[0],skin:0,gameWins:0,rebirths:0,raceWins:0,raceTrack:0,unlockedTracks:1,car:0,carColor:"#e6bd3f",ownedCars:[0]});
+let s;
+const asString=n=>String(n);
+function save(){try{localStorage.setItem(KEY,JSON.stringify({...s,coins:String(s.coins),corn:String(s.corn),size:String(s.size),salePrice:String(s.salePrice),reserves:s.reserves.map(String)}));$('saveStatus').textContent='💾 Progresso salvo automaticamente ✓';}catch(e){$('saveStatus').textContent='⚠️ Não foi possível salvar neste modo de navegador';}}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(!x)return initial();const d=initial();return {...d,...x,coins:BigInt(x.coins||0),corn:BigInt(x.corn||0),size:BigInt(x.size||1),salePrice:BigInt(x.salePrice||2),reserves:(x.reserves||d.reserves.map(String)).map(BigInt),rateLevels:d.rateLevels.map((_,i)=>Math.max(0,Number(x.rateLevels?.[i]||0))),owned:x.owned||[0],empireLevel:Math.max(0,Number(x.empireLevel||0)),skinsOwned:x.skinsOwned||[0],skin:Math.max(0,Number(x.skin||0)),gameWins:Math.max(0,Number(x.gameWins||0)),rebirths:Math.max(0,Number(x.rebirths||0)),raceWins:Math.max(0,Number(x.raceWins||0)),raceTrack:Math.max(0,Number(x.raceTrack||0)),unlockedTracks:Math.max(1,Number(x.unlockedTracks||1)),car:Math.max(0,Number(x.car||0)),carColor:x.carColor||"#e6bd3f",ownedCars:x.ownedCars||[0]};}catch(e){return initial();}}
+s=load();
+const fmt=n=>BigInt(n).toLocaleString('pt-BR');
+const cost=(base,l)=>BigInt(Math.floor(base*Math.pow(2.5,l)));
+const rate=()=>s.rateLevels.reduce((sum,l,i)=>sum+BigInt(l)*BigInt(production[i].rate),0n)*(2n**BigInt(s.rebirths));
+const sellQty=()=>s.saleLevel===0?10n:BigInt(saleLevels[s.saleLevel-1].qty);
+function unlock(){while(s.unlocked<worlds.length&&s.reserves[s.unlocked-1]===0n)s.unlocked++;}
+function animate(){const b=$('bird'),stage=$('birdStage');b.classList.remove('eating');void b.offsetWidth;b.classList.add('eating');for(let i=0;i<9;i++){const p=document.createElement('span');p.className='particle';p.textContent='🌽';p.style.left=(10+Math.random()*80)+'%';stage.appendChild(p);setTimeout(()=>p.remove(),900);}setTimeout(()=>b.classList.remove('eating'),900);}
+function comparisonFor(size){
+ const tiers=[
+  {n:'Caixa de sapato',e:'📦',m:0.3},
+  {n:'Cadeira',e:'🪑',m:0.9},
+  {n:'Pessoa',e:'🧍',m:1.7},
+  {n:'Casa',e:'🏠',m:10},
+  {n:'Prédio',e:'🏢',m:50},
+  {n:'Torre Eiffel',e:'🗼',m:330},
+  {n:'Burj Khalifa',e:'🏙️',m:828},
+  {n:'Montanha',e:'⛰️',m:8849},
+  {n:'Ilha',e:'🏝️',m:100000},
+  {n:'Lua',e:'🌕',m:3474000},
+  {n:'Terra',e:'🌍',m:12742000},
+  {n:'Júpiter',e:'🪐',m:139820000},
+  {n:'Estrela gigante',e:'⭐',m:1000000000}
+ ];
+ let target=tiers.find(t=>BigInt(Math.ceil(t.m))>=size);
+ if(!target)target={n:'Escala colossal',e:'🌌',m:Number(size>BigInt(Number.MAX_SAFE_INTEGER)?BigInt(Number.MAX_SAFE_INTEGER):size)*1.5};
+ return target;
+}
+const raceCars=[
+ {name:'Compacto',emoji:'🚙',cost:0,color:'#e6bd3f'},
+ {name:'Supercarro Vermelho',emoji:'🏎️',cost:250,color:'#e85c4a'},
+ {name:'Supercarro Azul',emoji:'🚘',cost:500,color:'#4da6e8'},
+ {name:'Hipercarro Roxo',emoji:'🏎️',cost:1000,color:'#b58ae8'},
+ {name:'Carro Neon',emoji:'🚗',cost:2500,color:'#55e6a5'}
+];
+function render(){
+unlock();const bird=birds[s.bird];
+$('rebirthInfo').textContent='Rebirths: '+s.rebirths+' · Produtividade: '+(2**s.rebirths).toLocaleString('pt-BR')+'×';
+$('rebirthHint').textContent=s.rebirths===0?'Ao fazer rebirth, moedas, milho, tamanho, upgrades, planeta e império reiniciam.':'Seu bônus permanente continua após o reinício. Minigames liberados!';
+$('rebirthButton').textContent='♻️ Fazer rebirth';
+$('rebirthButton').disabled=!(s.coins>=1000000n&&s.size>=100n);
+$('rebirthButton').title='Requer pelo menos 1.000.000 moedas e tamanho 100';
+$('raceUnlockMessage').textContent=s.rebirths>0?'🔓 Minigames desbloqueados!':'🔒 Faça pelo menos 1 rebirth para desbloquear os minigames.';
+$('raceGame').style.display=s.rebirths>0?'block':'none';
+$('raceGarage').style.display=s.rebirths>0?'block':'none';
+
+$('bird').textContent=bird.emoji;$('bird').style.filter='drop-shadow(0 0 10px '+(skins[s.skin]?.color||'#ffffff')+')';$('birdLabel').textContent=bird.name+' · Tamanho '+fmt(s.size);$('birdSub').textContent='Sem limite de tamanho ♾️';
+$('coins').textContent=fmt(s.coins);$('corn').textContent=fmt(s.corn);$('rate').textContent=fmt(rate())+'/s';$('planetShort').textContent=worlds[s.planet].name;
+$('planetInfo').textContent=worlds[s.planet].emoji+' '+worlds[s.planet].name+' — reserva: '+fmt(s.reserves[s.planet])+' milhos';
+$('plant').disabled=s.reserves[s.planet]<10n;$('feed').disabled=s.corn<s.size;$('sell').disabled=s.corn===0n;
+$('feedInfo').textContent='Próxima refeição: '+fmt(s.size)+' milho(s). A ave dobra de tamanho e a próxima refeição também dobra!';
+$('sellInfo').textContent='Venda até '+fmt(sellQty())+' milhos por clique, por '+fmt(s.salePrice*BigInt(empireStores[s.empireLevel]?.mult||1))+' moeda(s) cada com seu império atual.';
+const vis=Math.max(54,Math.min(240,70+Math.log2(Number(s.size>BigInt(Number.MAX_SAFE_INTEGER)?BigInt(Number.MAX_SAFE_INTEGER):s.size))*10));
+$('bird').style.fontSize=vis+'px';
+const ref=comparisonFor(s.size);
+const safeSize=Number(s.size>BigInt(Number.MAX_SAFE_INTEGER)?BigInt(Number.MAX_SAFE_INTEGER):s.size);
+const maxHeight=Math.max(safeSize,ref.m);
+$('birdMeters').textContent=fmt(s.size)+' m';
+$('birdBar').textContent=bird.emoji;
+$('birdBar').style.height=Math.max(5,Math.min(120,120*safeSize/maxHeight))+'px';
+$('objectBar').textContent=ref.e;
+$('objectBar').style.height=Math.max(5,Math.min(120,120*ref.m/maxHeight))+'px';
+$('comparisonTitle').textContent='Sua ave comparada com '+(ref.n==='Pessoa'?'uma pessoa':ref.n==='Casa'?'uma casa':ref.n==='Cadeira'?'uma cadeira':ref.n==='Caixa de sapato'?'uma caixa de sapato':ref.n==='Prédio'?'um prédio':ref.n==='Escala colossal'?'uma escala colossal':ref.n);
+$('objectName').textContent=ref.n;
+$('objectMeters').textContent=ref.m.toLocaleString('pt-BR',{maximumFractionDigits:1})+' m';
+$('scaleMessage').textContent=s.size>=BigInt(Math.ceil(ref.m))?'Sua ave alcançou ou ultrapassou essa referência!':'A escala visual é proporcional à referência selecionada.';
+const themes=['theme-0','theme-1','theme-2','theme-3','theme-4'];
+$('birdStage').classList.remove(...themes);
+$('birdStage').classList.add(themes[s.planet]||'theme-0');
+const skies=[
+ 'Céu azul e campos verdes da Terra',
+ 'Céu escuro e superfície lunar',
+ 'Pôr do sol avermelhado de Marte',
+ 'Brilho intenso e horizonte solar fantástico',
+ 'Nebulosas cósmicas da Galáxia'
+];
+$('birdSub').textContent=worlds[s.planet].emoji+' '+skies[s.planet]+' · tamanho ilimitado ♾️';
+$('upgrades').innerHTML='';
+production.forEach((u,i)=>{const c=cost(u.base,s.rateLevels[i]),d=document.createElement('div');d.className='item';d.innerHTML='<div><b>'+u.emoji+' '+u.name+'</b><small>Nível '+s.rateLevels[i]+' · +'+u.rate+' milho/s por nível</small><small>Preço: '+fmt(c)+' moedas</small></div>';const b=document.createElement('button');b.textContent='Comprar';b.disabled=s.coins<c;b.onclick=()=>{if(s.coins>=c){s.coins-=c;s.rateLevels[i]++;save();render();}};d.appendChild(b);$('upgrades').appendChild(d);});
+$('salesUpgrades').innerHTML='';
+if(s.saleLevel>=saleLevels.length){$('salesUpgrades').textContent='Todas as melhorias de venda foram compradas!';}else{const u=saleLevels[s.saleLevel],d=document.createElement('div');d.className='item';d.innerHTML='<div><b>📈 Venda nível '+(s.saleLevel+1)+'</b><small>Até '+fmt(u.qty)+' milhos por clique</small><small>'+fmt(u.cost)+' moedas · +1 moeda por milho</small></div>';const b=document.createElement('button');b.textContent='Comprar';b.disabled=s.coins<BigInt(u.cost);b.onclick=()=>{if(s.coins>=BigInt(u.cost)){s.coins-=BigInt(u.cost);s.saleLevel++;s.salePrice++;save();render();}};d.appendChild(b);$('salesUpgrades').appendChild(d);}
+$('worlds').innerHTML='';worlds.forEach((w,i)=>{const b=document.createElement('button');b.textContent=w.emoji+' '+w.name+(i<s.unlocked?'':' 🔒');b.disabled=i>=s.unlocked||i===s.planet;b.onclick=()=>{s.planet=i;save();render();};$('worlds').appendChild(b);});
+$('species').innerHTML='';birds.forEach((bird,i)=>{const owned=s.owned.includes(i),d=document.createElement('div');d.className='item';d.innerHTML='<div><b>'+bird.emoji+' '+bird.name+'</b><small>'+(owned?'Desbloqueada':'Preço: '+fmt(bird.cost)+' moedas')+'</small></div>';const b=document.createElement('button');b.textContent=owned?(s.bird===i?'Selecionada':'Usar'):'Desbloquear';b.disabled=owned?s.bird===i:s.coins<BigInt(bird.cost);b.onclick=()=>{if(owned)s.bird=i;else if(s.coins>=BigInt(bird.cost)){s.coins-=BigInt(bird.cost);s.owned.push(i);s.bird=i;}save();render();};d.appendChild(b);$('species').appendChild(d);});
+$('empire').innerHTML='';
+empireStores.forEach((store,i)=>{
+ const d=document.createElement('div');d.className='item';
+ const owned=i===s.empireLevel;
+ d.innerHTML='<div><b>'+store.emoji+' '+store.name+'</b><small>'+store.desc+'</small><small>'+(owned?'Seu negócio atual':i<s.empireLevel?'Já superado':'Preço: '+fmt(store.cost)+' moedas')+'</small></div>';
+ const b=document.createElement('button');b.textContent=owned?'Atual':'Expandir';
+ b.disabled=owned||i<s.empireLevel||i!==s.empireLevel+1||s.coins<BigInt(store.cost);
+ b.onclick=()=>{if(i===s.empireLevel+1&&s.coins>=BigInt(store.cost)){s.coins-=BigInt(store.cost);s.empireLevel=i;save();render();}};
+ d.appendChild(b);$('empire').appendChild(d);
+});
+$('minigames').innerHTML='';
+const gameCard=document.createElement('div');gameCard.className='item';
+gameCard.innerHTML='<div><b>🏎️ Corrida de supercarros</b><small>Controle sua ave-carro, desvie dos rivais e chegue ao final. Prêmio: 150 milhos.</small></div><span>🎮</span>';
+$('minigames').appendChild(gameCard);
+$('skins').innerHTML='<p class="muted">🎨 Skins desbloqueadas: escolha uma aparência para sua ave.</p>';
+skins.forEach((sk,i)=>{
+ if(!s.skinsOwned.includes(i))return;
+ const d=document.createElement('div');d.className='item';
+ d.innerHTML='<div><b>'+sk.emoji+' Skin '+sk.name+'</b><small>'+(s.skin===i?'Equipado':'Cosmético desbloqueado')+'</small></div>';
+ const b=document.createElement('button');b.textContent=s.skin===i?'Equipado':'Usar';b.disabled=s.skin===i;b.onclick=()=>{s.skin=i;save();render();};
+ d.appendChild(b);$('skins').appendChild(d);
+});
+const tracks=[
+ {name:'Oval Clássico',emoji:'🏁',wins:0,layout:0},
+ {name:'Figura 8',emoji:'♾️',wins:1,layout:1},
+ {name:'Circuito Montanha',emoji:'⛰️',wins:3,layout:2},
+ {name:'Grand Prix',emoji:'🏆',wins:6,layout:3}
+];
+const cars=[
+ {name:'Compacto',emoji:'🚙',cost:0,color:'#e6bd3f'},
+ {name:'Supercarro Vermelho',emoji:'🏎️',cost:250, color:'#e85c4a'},
+ {name:'Supercarro Azul',emoji:'🚘',cost:500,color:'#4da6e8'},
+ {name:'Hipercarro Roxo',emoji:'🏎️',cost:1000,color:'#b58ae8'},
+ {name:'Carro Neon',emoji:'🚗',cost:2500,color:'#55e6a5'}
+];
+$('trackChoices').innerHTML='';
+tracks.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t.emoji+' '+t.name+(s.raceWins<t.wins?' 🔒':'');b.disabled=s.rebirths===0||s.raceWins<t.wins||s.raceTrack===i;b.onclick=()=>{s.raceTrack=i;save();render();drawRace();};$('trackChoices').appendChild(b);});
+$('carChoices').innerHTML='';
+cars.forEach((c,i)=>{const d=document.createElement('div');d.className='item';const owned=s.ownedCars.includes(i);d.innerHTML='<div><b>'+c.emoji+' '+c.name+'</b><small>'+(owned?(s.car===i?'Selecionado':'Desbloqueado'):'Preço: '+c.cost+' milhos')+'</small></div>';const b=document.createElement('button');b.textContent=owned?(s.car===i?'Selecionado':'Usar'):'Desbloquear';b.disabled=s.rebirths===0||(owned&&s.car===i)||(!owned&&s.corn<BigInt(c.cost));b.onclick=()=>{if(owned)s.car=i;else if(s.corn>=BigInt(c.cost)){s.corn-=BigInt(c.cost);s.ownedCars.push(i);s.car=i;}s.carColor=c.color;save();render();drawRace();};d.appendChild(b);$('carChoices').appendChild(d);});
+const paintRow=document.createElement('div');paintRow.className='btns';
+[{name:'Amarelo',color:'#e6bd3f'},{name:'Vermelho',color:'#e85c4a'},{name:'Azul',color:'#4da6e8'},{name:'Verde neon',color:'#55e6a5'},{name:'Roxo',color:'#b58ae8'}].forEach(paint=>{const b=document.createElement('button');b.textContent='🎨 '+paint.name;b.style.borderColor=paint.color;b.disabled=s.rebirths===0;b.onclick=()=>{s.carColor=paint.color;save();render();drawRace();};paintRow.appendChild(b);});
+$('carChoices').appendChild(paintRow);
+$('garageInfo').textContent='Vitórias: '+s.raceWins+' · Circuitos liberados conforme suas vitórias. Carros e cores ficam salvos após rebirth.';
+const viewInside=window.__hbInside===true;
+if(typeof window.__hbFloor!=='number')window.__hbFloor=1;
+const mallLevel=s.empireLevel;
+const bview=$('buildingView');
+if(mallLevel<2){
+ bview.innerHTML='<div style="text-align:center;color:#fff;padding:28px 8px">🏗️ <b>Seu império ainda é pequeno</b><br><span style="font-size:12px">Compre o Supermercado de milho para começar a explorar os prédios.</span></div>';
+ $('enterBuilding').disabled=true;$('viewOutside').disabled=true;
+ $('buildingInfo').textContent='Desbloqueie o supermercado ou uma expansão maior para ver o prédio por fora e entrar.';
+}else{
+ $('enterBuilding').disabled=viewInside;$('viewOutside').disabled=!viewInside;
+ $('buildingInfo').textContent=viewInside?'Você está dentro do '+empireStores[mallLevel].name+'. Explore as lojas e o piso de alimentação!':'Vista externa: veja a fachada e as janelas do seu negócio.';
+ if(viewInside){
+  const floor2=window.__hbFloor===2;
+  const shops=floor2?'<div class="shop">👕 Moda do milho<small>Roupas e acessórios</small></div><div class="shop">🎮 Games<small>Jogos e diversão</small></div><div class="shop">🧸 Brinquedos<small>Brincadeiras</small></div><div class="shop">🎬 Cinema<small>Sessões especiais</small></div><div class="shop">🍦 Sorveteria<small>Sorvetes gelados</small></div><div class="shop">🎁 Presentes<small>Lembranças</small></div>':'<div class="shop">🌽 Milho premium<small>Grãos especiais</small></div><div class="shop">🥫 Conservas<small>Milho enlatado</small></div><div class="shop">🍿 Pipoca<small>Lanches</small></div><div class="shop">🌱 Sementes<small>Plantio</small></div><div class="shop">🛒 Mercado<small>Estoque</small></div><div class="shop">🍽️ Praça de alimentação<small>Sabores do milho</small></div>';
+  bview.innerHTML='<div class="mall-inside"><b>🛍️ '+empireStores[mallLevel].name+' — interior</b><p style="font-size:12px">Piso '+(floor2?'2 · lojas e diversão':'1 · corredor central')+'</p><div class="mall-floor">'+shops+'</div><button id="changeFloor" class="wide">'+(floor2?'⬇️ Voltar para o piso 1':'⬆️ Ir para o segundo andar')+'</button></div>';
+  $('changeFloor').onclick=()=>{window.__hbFloor=floor2?1:2;render();};
+ }else{
+  let windows='';for(let j=0;j<12;j++)windows+='<div class="mall-window"></div>';
+  bview.innerHTML='<div class="mall-outside"><div class="mall-roof">🌽 '+empireStores[mallLevel].name.toUpperCase()+'</div><div class="mall-facade">'+windows+'</div></div>';
+ }
+}
+const verse=verses[dailyVerseIndex()];$('verse').textContent='“'+verse[0].replace(/[“”]/g,'')+'”';$('verseRef').textContent=verse[1];
+}
+$('rebirthButton').onclick=()=>{
+ if(s.coins<1000000n||s.size<100n)return;
+ if(!confirm('Fazer rebirth? Seu progresso principal será reiniciado, mas você ganhará um bônus permanente de 2× na produtividade.'))return;
+ const next=s.rebirths+1, wins=s.raceWins, gameWins=s.gameWins, ownedCars=s.ownedCars.slice(), car=s.car, carColor=s.carColor, skinsOwned=s.skinsOwned.slice(), skin=s.skin;
+ s=initial();s.rebirths=next;s.raceWins=wins;s.gameWins=gameWins;s.ownedCars=ownedCars;s.car=car;s.carColor=carColor;s.skinsOwned=skinsOwned;s.skin=skin;s.raceTrack=0;s.unlockedTracks=tracksUnlockedForWins(wins);
+ window.__hbInside=false;save();render();
+ $('gameResult').textContent='♻️ Rebirth concluído! Produtividade permanente: '+(2**s.rebirths).toLocaleString('pt-BR')+'×. Minigames desbloqueados!';
+};
+$('plant').onclick=()=>{if(s.reserves[s.planet]>=10n){s.reserves[s.planet]-=10n;s.corn+=10n;unlock();save();render();}};
+$('sell').onclick=()=>{const n=s.corn<sellQty()?s.corn:sellQty();if(n>0n){s.corn-=n;s.coins+=n*s.salePrice*BigInt(empireStores[s.empireLevel]?.mult||1);save();render();}};
+$('feed').onclick=()=>{if(s.corn>=s.size){s.corn-=s.size;s.size*=2n;animate();save();render();}};
+// Corrida em circuito oval, vista de cima, com rivais visíveis e troca de faixa.
+let race={active:false,lane:0,progress:0,laps:0,frame:0,lastTs:0,raf:0,rivals:[],hitCooldown:0};
+const canvas=$('raceCanvas'),ctx=canvas.getContext('2d');
+const track={cx:180,cy:205,rx:130,ry:158};
+const trackDefs=[
+ {name:'Oval Clássico',wins:0},
+ {name:'Figura 8',wins:1},
+ {name:'Circuito Montanha',wins:3},
+ {name:'Grand Prix',wins:6}
+];
+function tracksUnlockedForWins(w){return w>=6?4:w>=3?3:w>=1?2:1;}
+function pointOnTrack(angle,lane){
+ const t=s.raceTrack||0,off=lane*18;
+ if(t===1){const a=angle;return {x:180+Math.sin(a)*(105+off),y:205+Math.sin(a)*Math.cos(a)*(230+off)};}
+ if(t===2){const a=angle;return {x:180+Math.cos(a)*(112+off)+Math.sin(2*a)*18,y:205+Math.sin(a)*(145+off)};}
+ if(t===3){const a=angle;return {x:180+Math.cos(a)*(120+off),y:205+Math.sin(a)*(142+off)+Math.sin(3*a)*12};}
+ return {x:180+Math.cos(angle)*(130+off),y:205+Math.sin(angle)*(158+off)};
+}
+function carPoint(angle,lane){return pointOnTrack(angle,lane);}
+function drawCar(x,y,angle,color,label,isPlayer=false){
+ ctx.save();ctx.translate(x,y);ctx.rotate(angle+Math.PI/2);
+ ctx.fillStyle='#101715';ctx.fillRect(-11,-15,5,9);ctx.fillRect(6,-15,5,9);ctx.fillRect(-11,7,5,9);ctx.fillRect(6,7,5,9);
+ ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-9,-17,18,34,5);ctx.fill();
+ ctx.fillStyle=isPlayer?'#fff3a6':'#d8efff';ctx.fillRect(-6,-10,12,9);ctx.fillStyle='#263b44';ctx.fillRect(-6,3,12,7);
+ ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(label,0,1);
+ if(isPlayer){ctx.strokeStyle='#fff4a6';ctx.lineWidth=2;ctx.strokeRect(-12,-20,24,40);}
+ ctx.restore();
+}
+function pathForLane(lane){
+ ctx.beginPath();
+ for(let i=0;i<=240;i++){const a=i/240*Math.PI*2,p=pointOnTrack(a,lane);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);}
+ ctx.closePath();
+}
+function drawRace(){
+ const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#356b3b';ctx.fillRect(0,0,w,h);
+ for(let i=0;i<18;i++){ctx.fillStyle=i%2?'#417d45':'#2d6035';ctx.beginPath();ctx.arc((i*71+22)%w,(i*47+15)%h,10,0,Math.PI*2);ctx.fill();}
+ ctx.lineJoin='round';pathForLane(1.7);ctx.fillStyle='#252b30';ctx.fill();
+ pathForLane(0);ctx.strokeStyle='#f2f0d4';ctx.lineWidth=3;ctx.stroke();
+ pathForLane(-1.7);ctx.strokeStyle='#f2f0d4';ctx.lineWidth=3;ctx.stroke();
+ ctx.setLineDash([9,8]);pathForLane(0);ctx.strokeStyle='#bbc4c2';ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle='#4b8648';ctx.beginPath();ctx.ellipse(180,205,46,54,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#f1d85d';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(trackDefs[s.raceTrack||0].name.toUpperCase(),180,201);ctx.font='22px sans-serif';ctx.fillText('🏁',180,225);
+ const start=pointOnTrack(0,0);ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(start.x-10,start.y);ctx.lineTo(start.x+10,start.y);ctx.stroke();
+ race.rivals.forEach((r,i)=>{const p=carPoint(r.angle,r.lane);drawCar(p.x,p.y,r.angle,r.color,String(i+1));});
+ const p=carPoint(race.progress%(Math.PI*2),race.lane);drawCar(p.x,p.y,race.progress%(Math.PI*2),s.carColor||'#e6bd3f',raceCars[s.car||0]?.name||'VOCÊ',true);
+}
+function finishRace(won,why){
+ race.active=false;cancelAnimationFrame(race.raf);
+ if(won){s.corn+=150n;s.gameWins++;s.raceWins++;s.unlockedTracks=Math.max(s.unlockedTracks,tracksUnlockedForWins(s.raceWins));let msg='🏆 Você venceu a corrida de circuito e ganhou 150 milhos!';
+  const locked=skins.map((x,i)=>i).filter(i=>!s.skinsOwned.includes(i));
+  if(locked.length&&s.gameWins%2===0){const got=locked[0];s.skinsOwned.push(got);msg+=' Skin desbloqueada: '+skins[got].name+' '+skins[got].emoji+'!';}
+  $('gameResult').textContent=msg;
+ }else $('gameResult').textContent='🏁 '+why+' Tente novamente e use as faixas para ultrapassar!';
+ $('raceStatus').textContent=won?'🏆 Vitória!':'Corrida encerrada';$('startRace').textContent='🔁 Correr novamente';save();render();drawRace();
+}
+function tickRace(ts){
+ if(!race.active)return;
+ const dt=Math.min(2,(ts-(race.lastTs||ts))/16.67);race.lastTs=ts;
+ // O carro do jogador avança pelo circuito; os rivais têm ritmos diferentes.
+ race.progress+=0.013*dt;
+ race.rivals.forEach(r=>{r.angle+=r.speed*dt;if(r.angle>=Math.PI*2){r.angle-=Math.PI*2;r.lap++;}});
+ if(race.hitCooldown>0)race.hitCooldown-=dt;
+ const playerAngle=race.progress%(Math.PI*2);
+ const collision=race.rivals.some(r=>{
+   let diff=Math.abs(r.angle-playerAngle);diff=Math.min(diff,Math.PI*2-diff);
+   return diff<0.105&&r.lane===race.lane;
+ });
+ if(collision&&race.hitCooldown<=0){
+   race.hitCooldown=45;race.progress-=0.10;
+   $('raceStatus').textContent='💥 Encostou em um rival! Troque de faixa!';
+ }
+ const laps=Math.floor(race.progress/(Math.PI*2));
+ $('raceDistance').textContent='Volta: '+Math.min(3,laps+1)+'/3 · '+Math.floor((race.progress%(Math.PI*2))/(Math.PI*2)*100)+'%';
+ if(race.progress>=Math.PI*2*3){finishRace(true);return;}
+ drawRace();race.raf=requestAnimationFrame(tickRace);
+}
+function startRace(){
+ race.active=true;race.lane=0;race.progress=0;race.lastTs=0;race.hitCooldown=0;
+ race.rivals=[
+  {angle:0.55,lane:-1,speed:0.0107,color:'#e85c4a',lap:0},
+  {angle:2.25,lane:1,speed:0.0116,color:'#4da6e8',lap:0},
+  {angle:4.2,lane:0,speed:0.0122,color:'#b58ae8',lap:0}
+ ];
+ $('raceStatus').textContent='🏁 3 voltas! Ultrapasse os rivais';$('raceDistance').textContent='Volta: 1/3 · 0%';
+ $('startRace').textContent='🏎️ Corrida em andamento';drawRace();race.raf=requestAnimationFrame(tickRace);
+}
+function moveLane(d){if(race.active){race.lane=Math.max(-1,Math.min(1,race.lane+d));drawRace();}}
+$('startRace').onclick=()=>{if(!race.active)startRace();};
+$('leftControl').onclick=()=>moveLane(-1);$('rightControl').onclick=()=>moveLane(1);
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){e.preventDefault();moveLane(-1)}if(e.key==='ArrowRight'){e.preventDefault();moveLane(1)}});
+$('enterBuilding').onclick=()=>{window.__hbInside=true;render();};
+$('viewOutside').onclick=()=>{window.__hbInside=false;render();};
+drawRace();
+$('newVerse').onclick=()=>{s.verse=(Number(s.verse||0)+1)%verses.length;save();render();};
+$('reset').onclick=()=>{if(confirm('Apagar todo o progresso e reiniciar o jogo?')){s=initial();save();render();}};
+render();
+setInterval(()=>{const r=rate();if(r>0n&&s.reserves[s.planet]>0n){const n=r<s.reserves[s.planet]?r:s.reserves[s.planet];s.reserves[s.planet]-=n;s.corn+=n;unlock();render();save();}},1000);
+setInterval(save,5000);
+})();
+</script>
+
+<style>
+#hbOnlineBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#0f291f;border:1px solid #42664a;border-radius:12px;padding:10px;margin:8px 0 12px}#hbOnlineBar button{padding:8px 10px}#hbOnlinePanel{display:none}#hbAccountModal{position:fixed;inset:0;background:#06110eeF;z-index:9999;display:flex;align-items:center;justify-content:center;padding:14px}#hbAccountCard{width:min(480px,100%);background:#1a3428;border:1px solid #6d9568;border-radius:16px;padding:18px;box-shadow:0 15px 50px #0009}#hbAccountCard input{width:100%;padding:11px;border-radius:8px;border:1px solid #58795b;background:#0c2017;color:white;font:inherit;margin:5px 0 10px}#hbAvatars{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:8px 0}#hbAvatars button{font-size:25px;padding:7px 2px}#hbAvatars button.selected{outline:3px solid #f4d875;background:#496b3e}#hbAccountError{color:#ffd28d;min-height:22px;font-size:13px}#hbOnlineModes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}#hbOnlineStatus{font-size:13px;color:#d2e6d0}#hbOnlineScore{font-size:18px;color:#f4d875;font-weight:800}
+</style>
+<div id="hbAccountModal"><div id="hbAccountCard"><h2>🐦 Conta Hungry Birds</h2><p class="muted">Crie uma conta sem e-mail. O nome é exclusivo. Use uma senha para proteger sua conta.</p><label for="hbUsername">Nome de usuário</label><input id="hbUsername" maxlength="18" autocomplete="username" placeholder="Escolha um nome (3–18 caracteres)"><label for="hbPassword">Senha (mínimo 6 caracteres)</label><input id="hbPassword" type="password" autocomplete="current-password" placeholder="Crie ou digite sua senha"><b>Escolha sua foto de perfil</b><div id="hbAvatars"></div><div id="hbAccountError"></div><div class="btns"><button id="hbRegister" class="primary">Criar conta</button><button id="hbLogin">Entrar</button></div><button id="hbOffline" class="wide">Continuar jogando offline</button><p class="muted">Sem e-mail de recuperação: guarde sua senha. Não use uma senha que você usa em outros serviços.</p></div></div>
+<script>
+(()=>{
+const avatars=['🐦','🐤','🦅','🦜','🦉','🐧','🦆','🦩','🦚','🐔','🦤','♟️🦫🧊'];
+let avatar=avatars[0],token=localStorage.getItem('hbOnlineToken')||'',profile=null,socket=null,activeMatch=false,lastCorn=null,lastSize=null,currentMode='corn-minute';
+const $=id=>document.getElementById(id);const api=async(path,data)=>{const r=await fetch('/api/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const x=await r.json();if(!r.ok)throw new Error(x.error||'Erro na conexão');return x;};
+avatars.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.textContent=a;b.className=i===0?'selected':'';b.onclick=()=>{avatar=a;document.querySelectorAll('#hbAvatars button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');};$('hbAvatars').appendChild(b);});
+function setProfile(p){profile=p;$('hbProfileBadge').textContent=p.avatar+' '+p.username;$('hbAccountModal').style.display='none';$('hbConnection').textContent='Conectando…';connectSocket();}
+function connectSocket(){if(socket)socket.close();socket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws?token='+encodeURIComponent(token));socket.onopen=()=>$('hbConnection').textContent='🟢 Online';socket.onclose=()=>{$('hbConnection').textContent='🔴 Desconectado';};socket.onerror=()=>{$('hbConnection').textContent='Falha na conexão';};socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='queued'){$('hbOnlineStatus').textContent='⏳ Procurando um jogador real…';$('hbLeaveMatch').style.display='block';activeMatch=true;}if(m.type==='matched'){$('hbOnlineStatus').textContent='🏁 Partida encontrada! '+m.duration+' segundos.';$('hbOnlinePlayers').textContent='Você: '+profile.username+' · Adversário: '+m.opponent.username;$('hbOnlineScore').textContent='Placar: 0 × 0';$('hbLeaveMatch').style.display='block';activeMatch=true;lastCorn=parseNum($('corn').textContent);lastSize=parseNum($('birdLabel').textContent.match(/Tamanho ([\d.,]+)/)?.[1]||'1');}if(m.type==='tick'){$('hbOnlineScore').textContent='🌽 '+profile.username+': '+m.youScore.toLocaleString('pt-BR')+' × '+m.opponentScore.toLocaleString('pt-BR')+' '+m.opponent.username+' · '+m.remaining+' s';}if(m.type==='result'){$('hbOnlineStatus').textContent=m.winner==='draw'?'🤝 Empate!':m.winner===profile.username?'🏆 Você venceu!':'😅 '+m.winner+' venceu desta vez!';$('hbOnlineScore').textContent='Placar final: '+m.youScore.toLocaleString('pt-BR')+' × '+m.opponentScore.toLocaleString('pt-BR');$('hbLeaveMatch').style.display='none';activeMatch=false;}if(m.type==='error'){$('hbOnlineStatus').textContent='⚠️ '+m.message;}};}
+function parseNum(t){return Number(String(t||'0').replace(/[^0-9]/g,''))||0;}
+async function auth(mode){$('hbAccountError').textContent='';try{const data={username:$('hbUsername').value.trim(),password:$('hbPassword').value,avatar};const x=await api(mode,data);token=x.token;localStorage.setItem('hbOnlineToken',token);setProfile(x.profile);}catch(e){$('hbAccountError').textContent=e.message;}}
+$('hbRegister').onclick=()=>auth('register');$('hbLogin').onclick=()=>auth('login');$('hbOffline').onclick=()=>{$('hbAccountModal').style.display='none';$('hbProfileBadge').textContent='👤 Jogando offline';};$('hbOpenAccount').onclick=()=>{$('hbAccountModal').style.display='flex';};$('hbShowOnline').onclick=()=>{$('hbOnlinePanel').style.display=$('hbOnlinePanel').style.display==='block'?'none':'block';$('hbOnlinePanel').scrollIntoView({behavior:'smooth',block:'nearest'});};
+document.querySelectorAll('#hbOnlineModes button').forEach(b=>b.onclick=()=>{if(!profile){$('hbAccountModal').style.display='flex';return;}if(socket?.readyState===1){currentMode=b.dataset.mode;$('hbOnlineStatus').textContent='Entrando na fila…';socket.send(JSON.stringify({type:'queue',mode:currentMode}));}});
+$('hbLeaveMatch').onclick=()=>{if(socket?.readyState===1)socket.send(JSON.stringify({type:'leave'}));activeMatch=false;$('hbLeaveMatch').style.display='none';$('hbOnlineStatus').textContent='Você saiu da fila/partida.';};
+// Envia somente aumentos observados durante partidas; o servidor controla fila, adversário e relógio.
+setInterval(()=>{if(!activeMatch||!socket||socket.readyState!==1)return;const corn=parseNum($('corn').textContent);const size=parseNum($('birdLabel').textContent.match(/Tamanho ([\d.,]+)/)?.[1]||'1');const delta=currentMode==='size-duel'&&lastSize!==null?Math.max(0,size-lastSize):Math.max(0,corn-(lastCorn??corn));if(delta>0)socket.send(JSON.stringify({type:'score',amount:Math.min(delta,1000000)}));lastCorn=corn;lastSize=size;},300);
+async function restore(){if(!token)return;try{const r=await fetch('/api/me',{headers:{Authorization:'Bearer '+token}});if(!r.ok)throw Error();const x=await r.json();setProfile(x.profile);}catch(e){localStorage.removeItem('hbOnlineToken');token='';}}
+restore();
+})();
+</script>
+
+</body>
+</html>

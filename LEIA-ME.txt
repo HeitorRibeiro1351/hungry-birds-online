@@ -1,0 +1,20 @@
+HUNGRY BIRDS TYCOON — VERSÃO ONLINE
+
+O que foi adicionado:
+- Contas sem e-mail, com nome único (não diferencia maiúsculas/minúsculas), senha e foto de perfil por emoji.
+- Senhas protegidas com scrypt no servidor; não são salvas em texto puro.
+- Filas multiplayer com jogadores reais conectados via WebSocket; não há bots automáticos.
+- Modos: Produção de milho (60 s), Colheita relâmpago (45 s) e Desafio de crescimento (60 s).
+- O servidor controla a duração e pareia dois usuários que escolheram o mesmo modo.
+
+COMO EXECUTAR LOCALMENTE
+1. Instale Node.js 18 ou mais recente.
+2. Abra um terminal nesta pasta.
+3. Execute: npm install
+4. Execute: npm start
+5. Abra http://localhost:3000 no navegador.
+
+IMPORTANTE PARA JOGAR ONLINE COM OUTRAS PESSOAS
+Este projeto precisa ser publicado em um servidor acessível pela internet com HTTPS/WSS para jogadores em aparelhos diferentes. Rodar localhost só permite acessar no seu próprio dispositivo/rede. Publique a pasta inteira em um host que suporte Node.js e WebSocket. Não é possível oferecer partidas reais pela internet usando apenas um arquivo HTML aberto localmente.
+
+As contas ficam em accounts.json no servidor. Faça backup desse arquivo. Como não há e-mail, se o jogador esquecer a senha não existe recuperação automática. Para uso público, configure HTTPS, backups e regras contra abuso/cheating antes de divulgar o servidor.
